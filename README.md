@@ -19,7 +19,6 @@ Sistem manajemen user dengan API key yang terintegrasi dengan database MySQL.
 - id (INT, Primary Key)
 - email (VARCHAR 255, UNIQUE)
 - password (VARCHAR 255, hashed)
-- created_at (TIMESTAMP)
 ```
 
 ### Tabel: apikey
@@ -38,7 +37,6 @@ Sistem manajemen user dengan API key yang terintegrasi dengan database MySQL.
 - last_name (VARCHAR 100)
 - email (VARCHAR 255)
 - apikey_id (INT, Foreign Key → apikey.id)
-- created_at (TIMESTAMP)
 ```
 
 ## Setup Awal
