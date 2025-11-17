@@ -131,8 +131,8 @@ app.get('/api/check-auth', (req, res) => {
   }
 });
 
-// 5. GENERATE API KEY
-app.post('/api/generate-apikey', checkAuth, async (req, res) => {
+// 5. GENERATE API KEY (PUBLIC - No auth required)
+app.post('/api/generate-apikey', async (req, res) => {
   try {
     const keyValue = generateApiKey();
     const expiryDate = getExpiryDate();
@@ -155,8 +155,8 @@ app.post('/api/generate-apikey', checkAuth, async (req, res) => {
   }
 });
 
-// 6. CREATE USER
-app.post('/api/create-user', checkAuth, async (req, res) => {
+// 6. CREATE USER (PUBLIC - No auth required)
+app.post('/api/create-user', async (req, res) => {
   try {
     const { first_name, last_name, email, apikey_id } = req.body;
     
@@ -195,10 +195,10 @@ app.get('/api/users', checkAuth, async (req, res) => {
     const connection = await pool.getConnection();
     const [rows] = await connection.query(
       `SELECT u.id, u.first_name, u.last_name, u.email, 
-              a.id as apikey_id, a.key_value, a.expires_at, a.status
+              a.id as apikey_id, a.key_value, a.created_at, a.expires_at, a.status
        FROM user u 
        JOIN apikey a ON u.apikey_id = a.id
-       ORDER BY u.created_at DESC`
+       ORDER BY a.created_at DESC`
     );
     connection.release();
 
@@ -250,11 +250,7 @@ app.get('/dashboard', (req, res) => {
 });
 
 app.get('/create-user', (req, res) => {
-  if (req.session.adminId) {
-    res.sendFile(path.join(__dirname, 'public', 'create-user.html'));
-  } else {
-    res.redirect('/');
-  }
+  res.sendFile(path.join(__dirname, 'public', 'create-user.html'));
 });
 
 app.listen(PORT, () => {

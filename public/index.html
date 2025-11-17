@@ -5,19 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>API User Management</title>
   <script>
-    // Redirect to login or dashboard based on auth status
-    window.addEventListener('load', async () => {
-      try {
-        const response = await fetch('/api/check-auth');
-        const data = await response.json();
-        if (data.authenticated) {
-          window.location.href = '/dashboard';
-        } else {
-          window.location.href = '/login.html';
-        }
-      } catch (error) {
-        window.location.href = '/login.html';
-      }
+    // Redirect to create-user by default
+    window.addEventListener('load', () => {
+      window.location.href = '/create-user';
     });
   </script>
 </head>
