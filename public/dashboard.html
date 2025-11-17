@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard - API User Management</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #f5f7fa;
+    }
+
+    .header {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 20px 0;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .header-content {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .header-title {
+      font-size: 24px;
+      font-weight: 600;
+    }
+
+    .header-title small {
+      display: block;
+      font-size: 12px;
+      opacity: 0.8;
+      margin-top: 5px;
+    }
+
+    .header-actions {
+      display: flex;
+      gap: 15px;
+      align-items: center;
+    }
+
+    .admin-info {
+      font-size: 14px;
+      text-align: right;
+    }
+
+    .btn {
+      padding: 10px 20px;
+      border: none;
+      border-radius: 5px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+
+    .btn-primary {
+      background-color: white;
+      color: #667eea;
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+    }
+
+    .btn-danger {
+      background-color: #e74c3c;
+      color: white;
+    }
+
+    .btn-danger:hover {
+      background-color: #c0392b;
+      transform: translateY(-2px);
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 30px 20px;
+    }
+
+    .tabs {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 20px;
+      border-bottom: 2px solid #e0e0e0;
+    }
+
+    .tab-button {
+      padding: 12px 20px;
+      background: none;
+      border: none;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      color: #666;
+      border-bottom: 3px solid transparent;
+      transition: all 0.3s;
+    }
+
+    .tab-button.active {
+      color: #667eea;
+      border-bottom-color: #667eea;
+    }
+
+    .tab-button:hover {
+      color: #667eea;
+    }
+
+    .tab-content {
+      display: none;
+    }
+
+    .tab-content.active {
+      display: block;
+    }
+
+    .section-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+      background: white;
+      padding: 15px;
+      border-radius: 8px;
+    }
+
+    .section-title {
+      font-size: 18px;
+      font-weight: 600;
+      color: #333;
+    }
+
+    .btn-create {
+      background-color: #667eea;
+      color: white;
+    }
+
+    .btn-create:hover {
+      background-color: #5568d3;
+      transform: translateY(-2px);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: white;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    th {
+      background-color: #f8f9fa;
+      padding: 15px;
+      text-align: left;
+      font-weight: 600;
+      color: #333;
+      border-bottom: 2px solid #e0e0e0;
+    }
+
+    td {
+      padding: 15px;
+      border-bottom: 1px solid #e0e0e0;
+      color: #666;
+    }
+
+    tr:hover {
+      background-color: #f9f9f9;
+    }
+
+    tr:last-child td {
+      border-bottom: none;
+    }
+
+    .status-badge {
+      display: inline-block;
+      padding: 6px 12px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    .status-active {
+      background-color: #e8f5e9;
+      color: #2e7d32;
+    }
+
+    .status-inactive {
+      background-color: #ffebee;
+      color: #c62828;
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 40px 20px;
+      color: #999;
+      background: white;
+      border-radius: 8px;
+    }
+
+    .empty-state-icon {
+      font-size: 48px;
+      margin-bottom: 15px;
+    }
+
+    .message {
+      padding: 15px;
+      border-radius: 5px;
+      margin-bottom: 20px;
+      display: none;
+    }
+
+    .message.error {
+      background-color: #fee;
+      color: #c33;
+      border: 1px solid #fcc;
+      display: block;
+    }
+
+    .message.success {
+      background-color: #efe;
+      color: #3c3;
+      border: 1px solid #cfc;
+      display: block;
+    }
+
+    .loading {
+      text-align: center;
+      padding: 30px;
+      color: #667eea;
+    }
+
+    .spinner {
+      border: 4px solid #f3f3f3;
+      border-top: 4px solid #667eea;
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      animation: spin 1s linear infinite;
+      margin: 0 auto 15px;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    .key-cell {
+      font-family: 'Courier New', monospace;
+      font-size: 12px;
+      word-break: break-all;
+      background-color: #f5f5f5;
+      padding: 8px;
+      border-radius: 3px;
+    }
+
+    .no-data {
+      text-align: center;
+      padding: 30px;
+      color: #999;
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <div class="header-content">
+      <div>
+        <div class="header-title">
+          API User Management
+          <small>Dashboard Admin</small>
+        </div>
+      </div>
+      <div class="header-actions">
+        <div class="admin-info">
+          <div>Admin: <strong id="adminEmail">Loading...</strong></div>
+        </div>
+        <button class="btn btn-danger" onclick="logout()">Logout</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="container">
+    <div id="message" class="message"></div>
+
+    <div class="tabs">
+      <button class="tab-button active" onclick="switchTab('users')">👥 Users</button>
+      <button class="tab-button" onclick="switchTab('apikeys')">🔑 API Keys</button>
+    </div>
+
+    <!-- USERS TAB -->
+    <div id="users" class="tab-content active">
+      <div class="section-header">
+        <h2 class="section-title">Daftar User</h2>
+        <button class="btn btn-create" onclick="goToCreateUser()">+ Buat User Baru</button>
+      </div>
+      <div id="usersContainer" class="loading">
+        <div class="spinner"></div>
+        <p>Loading data...</p>
+      </div>
+    </div>
+
+    <!-- API KEYS TAB -->
+    <div id="apikeys" class="tab-content">
+      <div class="section-header">
+        <h2 class="section-title">Daftar API Keys</h2>
+      </div>
+      <div id="apiKeysContainer" class="loading">
+        <div class="spinner"></div>
+        <p>Loading data...</p>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    async function checkAuth() {
+      try {
+        const response = await fetch('/api/check-auth');
+        const data = await response.json();
+        if (!data.authenticated) {
+          window.location.href = '/';
+        } else {
+          document.getElementById('adminEmail').textContent = data.email;
+        }
+      } catch (error) {
+        window.location.href = '/';
+      }
+    }
+
+    function switchTab(tabName) {
+      // Hide all tabs
+      document.querySelectorAll('.tab-content').forEach(tab => {
+        tab.classList.remove('active');
+      });
+      document.querySelectorAll('.tab-button').forEach(btn => {
+        btn.classList.remove('active');
+      });
+
+      // Show selected tab
+      document.getElementById(tabName).classList.add('active');
+      event.target.classList.add('active');
+
+      if (tabName === 'users') {
+        loadUsers();
+      } else if (tabName === 'apikeys') {
+        loadApiKeys();
+      }
+    }
+
+    async function loadUsers() {
+      const container = document.getElementById('usersContainer');
+      container.innerHTML = '<div class="loading"><div class="spinner"></div><p>Loading...</p></div>';
+
+      try {
+        const response = await fetch('/api/users');
+        if (!response.ok) {
+          throw new Error('Failed to load users');
+        }
+
+        const users = await response.json();
+
+        if (users.length === 0) {
+          container.innerHTML = '<div class="empty-state"><div class="empty-state-icon">📭</div><p>Belum ada user</p></div>';
+          return;
+        }
+
+        let html = `
+          <table>
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>First Name</th>
+                <th>Last Name</th>
+                <th>Email</th>
+                <th>API Key</th>
+                <th>Status</th>
+                <th>Expires At</th>
+              </tr>
+            </thead>
+            <tbody>
+        `;
+
+        users.forEach(user => {
+          const expiresAt = new Date(user.expires_at).toLocaleDateString('id-ID');
+          const statusClass = user.status === 'active' ? 'status-active' : 'status-inactive';
+          html += `
+            <tr>
+              <td>${user.id}</td>
+              <td>${user.first_name}</td>
+              <td>${user.last_name}</td>
+              <td>${user.email}</td>
+              <td><div class="key-cell">${user.key_value.substring(0, 16)}...</div></td>
+              <td><span class="status-badge ${statusClass}">${user.status.toUpperCase()}</span></td>
+              <td>${expiresAt}</td>
+            </tr>
+          `;
+        });
+
+        html += `</tbody></table>`;
+        container.innerHTML = html;
+      } catch (error) {
+        container.innerHTML = `<div class="empty-state"><p>Error loading users: ${error.message}</p></div>`;
+      }
+    }
+
+    async function loadApiKeys() {
+      const container = document.getElementById('apiKeysContainer');
+      container.innerHTML = '<div class="loading"><div class="spinner"></div><p>Loading...</p></div>';
+
+      try {
+        const response = await fetch('/api/apikeys');
+        if (!response.ok) {
+          throw new Error('Failed to load API keys');
+        }
+
+        const keys = await response.json();
+
+        if (keys.length === 0) {
+          container.innerHTML = '<div class="empty-state"><div class="empty-state-icon">🔐</div><p>Belum ada API Key</p></div>';
+          return;
+        }
+
+        let html = `
+          <table>
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>API Key</th>
+                <th>Created At</th>
+                <th>Expires At</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody>
+        `;
+
+        keys.forEach(key => {
+          const createdAt = new Date(key.created_at).toLocaleDateString('id-ID');
+          const expiresAt = new Date(key.expires_at).toLocaleDateString('id-ID');
+          const statusClass = key.status === 'active' ? 'status-active' : 'status-inactive';
+          html += `
+            <tr>
+              <td>${key.id}</td>
+              <td><div class="key-cell">${key.key_value.substring(0, 16)}...</div></td>
+              <td>${createdAt}</td>
+              <td>${expiresAt}</td>
+              <td><span class="status-badge ${statusClass}">${key.status.toUpperCase()}</span></td>
+            </tr>
+          `;
+        });
+
+        html += `</tbody></table>`;
+        container.innerHTML = html;
+      } catch (error) {
+        container.innerHTML = `<div class="empty-state"><p>Error loading API keys: ${error.message}</p></div>`;
+      }
+    }
+
+    function goToCreateUser() {
+      window.location.href = '/create-user';
+    }
+
+    async function logout() {
+      if (confirm('Are you sure you want to logout?')) {
+        try {
+          const response = await fetch('/api/logout', { method: 'POST' });
+          if (response.ok) {
+            window.location.href = '/';
+          }
+        } catch (error) {
+          alert('Logout failed: ' + error.message);
+        }
+      }
+    }
+
+    function showMessage(message, type) {
+      const messageEl = document.getElementById('message');
+      messageEl.textContent = message;
+      messageEl.className = `message ${type}`;
+      setTimeout(() => {
+        messageEl.className = 'message';
+      }, 5000);
+    }
+
+    // Load data on page load
+    window.addEventListener('load', () => {
+      checkAuth();
+      loadUsers();
+    });
+  </script>
+</body>
+</html>
